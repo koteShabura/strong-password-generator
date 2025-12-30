@@ -40,6 +40,13 @@ echo "Making script executable..."
 chmod +x "$SCRIPT_NAME"
 echo -e "${GREEN}✓${NC} Script is executable"
 
+# Create /usr/local/bin if it doesn't exist
+if [ ! -d "$INSTALL_DIR" ]; then
+    echo "Creating $INSTALL_DIR directory..."
+    sudo mkdir -p "$INSTALL_DIR"
+    echo -e "${GREEN}✓${NC} Directory created"
+fi
+
 # Check if already installed
 if [ -f "$INSTALL_DIR/$INSTALL_NAME" ]; then
     echo -e "${YELLOW}Warning: Already installed${NC}"
@@ -58,6 +65,22 @@ if sudo cp "$SCRIPT_NAME" "$INSTALL_DIR/$INSTALL_NAME"; then
 else
     echo -e "${RED}Error: Installation failed${NC}"
     exit 1
+fi
+
+# Make sure /usr/local/bin is in PATH
+if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+    echo ""
+    echo -e "${YELLOW}Note: $INSTALL_DIR is not in your PATH${NC}"
+    echo "Add this line to your ~/.bashrc or ~/.zshrc:"
+    echo "  export PATH=\"\$PATH:$INSTALL_DIR\""
+    echo ""
+    read -p "Add to ~/.bashrc now? [y/N] " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> ~/.bashrc
+        echo -e "${GREEN}✓${NC} Added to ~/.bashrc"
+        echo "Run: source ~/.bashrc"
+    fi
 fi
 
 # Optional clipboard support
@@ -83,4 +106,7 @@ echo "Usage:"
 echo "  $INSTALL_NAME              # Interactive mode"
 echo "  $INSTALL_NAME -l 20 -s -n  # CLI mode"
 echo "  $INSTALL_NAME --help       # Show help"
+echo ""
+echo "If 'passgen' command not found, run:"
+echo "  source ~/.bashrc"
 echo ""
