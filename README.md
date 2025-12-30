@@ -34,6 +34,26 @@ passgen -l 16 -s -n --save passwords.txt
 
 # Exclude ambiguous characters (il1Lo0O)
 passgen -l 20 -s -n -x
+
+# Check password strength
+passgen --check "MyPassword123!"
+
+# Use presets for common scenarios
+passgen --preset wifi
+passgen --preset strong
+passgen --preset pin
+```
+
+### Presets
+
+Quick shortcuts for common password types:
+
+```bash
+passgen --preset wifi      # 16 chars, no ambiguous (easy to type on phone)
+passgen --preset strong    # 24 chars, maximum security
+passgen --preset pin       # 6 digit PIN
+passgen --preset basic     # 12 chars, letters + numbers
+passgen --preset max       # 32 chars, ultra secure
 ```
 
 ### Options
@@ -45,6 +65,8 @@ passgen -l 20 -s -n -x
 -n, --numbers        Include numbers
 -x, --exclude-ambiguous   Exclude il1Lo0O
 --save FILE          Save to file
+--check PASSWORD     Analyze password strength
+--preset TYPE        Use preset (wifi, strong, pin, basic, max)
 --help               Show help
 ```
 

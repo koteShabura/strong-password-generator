@@ -2,7 +2,7 @@
 """
 Strong Password Generator CLI Tool
 Author: Kote Shaburishvili
-Version: 2.0
+Version: 2.1
 """
 
 import secrets
@@ -10,6 +10,7 @@ import string
 import sys
 import argparse
 from pathlib import Path
+import re
 
 def get_yes_no(prompt, default=True):
     """Get yes/no input with default value"""
@@ -64,6 +65,77 @@ def calculate_strength(length, charset_size):
     else:
         return "STRONG ✓"
 
+def check_password(password):
+    """Analyze and validate a password"""
+    length = len(password)
+    
+    # Check character types
+    has_lowercase = bool(re.search(r'[a-z]', password))
+    has_uppercase = bool(re.search(r'[A-Z]', password))
+    has_numbers = bool(re.search(r'[0-9]', password))
+    has_symbols = bool(re.search(r'[^a-zA-Z0-9]', password))
+    
+    # Calculate charset size
+    charset_size = 0
+    if has_lowercase or has_uppercase:
+        charset_size += 26
+    if has_lowercase and has_uppercase:
+        charset_size += 26
+    if has_numbers:
+        charset_size += 10
+    if has_symbols:
+        charset_size += 32
+    
+    # Calculate entropy
+    import math
+    entropy = length * math.log2(charset_size) if charset_size > 0 else 0
+    
+    # Determine strength
+    if entropy < 50:
+        strength = "WEAK ⚠️"
+    elif entropy < 75:
+        strength = "MEDIUM 🔶"
+    else:
+        strength = "STRONG ✓"
+    
+    # Find missing types
+    missing = []
+    if not has_lowercase:
+        missing.append("lowercase letters")
+    if not has_uppercase:
+        missing.append("uppercase letters")
+    if not has_numbers:
+        missing.append("numbers")
+    if not has_symbols:
+        missing.append("symbols")
+    
+    # Print analysis
+    print("\n" + "═"*50)
+    print(" PASSWORD ANALYSIS")
+    print("─"*50)
+    print(f"  Password: {password}")
+    print(f"  Length: {length} characters")
+    print(f"  Strength: {strength}")
+    print(f"  Entropy: {entropy:.1f} bits")
+    print("\n  Character Types:")
+    print(f"    Lowercase: {'✓' if has_lowercase else '✗'}")
+    print(f"    Uppercase: {'✓' if has_uppercase else '✗'}")
+    print(f"    Numbers:   {'✓' if has_numbers else '✗'}")
+    print(f"    Symbols:   {'✓' if has_symbols else '✗'}")
+    
+    if missing:
+        print(f"\n  Missing: {', '.join(missing)}")
+    
+    # Recommendations
+    if entropy < 50:
+        print("\n  Recommendation: Use a longer password or add more character types")
+    elif entropy < 75:
+        print("\n  Recommendation: Good, but consider making it longer for better security")
+    else:
+        print("\n  Recommendation: Excellent password strength!")
+    
+    print("═"*50 + "\n")
+
 def generate_password(length, use_symbols, use_numbers, exclude_ambiguous=False):
     """Generate a cryptographically secure password"""
     chars = string.ascii_letters
@@ -114,7 +186,7 @@ def save_to_file(passwords, filename="passwords.txt"):
 def interactive_mode():
     """Run interactive mode"""
     print("╔═══════════════════════════════════════╗")
-    print("║   STRONG PASSWORD GENERATOR v2.0      ║")
+    print("║   STRONG PASSWORD GENERATOR v2.1      ║")
     print("╚═══════════════════════════════════════╝")
     
     use_symbols = get_yes_no("Include symbols?", default=True)
@@ -173,6 +245,23 @@ def cli_mode(args):
         if args.save:
             save_to_file([password], args.save)
 
+def apply_preset(preset):
+    """Apply preset configurations"""
+    presets = {
+        'wifi': {'length': 16, 'symbols': True, 'numbers': True, 'exclude_ambiguous': True},
+        'strong': {'length': 24, 'symbols': True, 'numbers': True, 'exclude_ambiguous': False},
+        'pin': {'length': 6, 'symbols': False, 'numbers': True, 'exclude_ambiguous': False},
+        'basic': {'length': 12, 'symbols': False, 'numbers': True, 'exclude_ambiguous': True},
+        'max': {'length': 32, 'symbols': True, 'numbers': True, 'exclude_ambiguous': False}
+    }
+    
+    if preset not in presets:
+        print(f"Unknown preset: {preset}")
+        print(f"Available presets: {', '.join(presets.keys())}")
+        sys.exit(1)
+    
+    return presets[preset]
+
 def main():
     """Main entry point"""
     parser = argparse.ArgumentParser(
@@ -188,12 +277,30 @@ def main():
     parser.add_argument("-n", "--numbers", action="store_true",
                        help="Include numbers")
     parser.add_argument("-x", "--exclude-ambiguous", action="store_true",
-                       help="Exclude ambiguous chars (il1Lo0O)")
+                       help="Exclude il1Lo0O characters")
     parser.add_argument("--save", type=str, metavar="FILE",
                        help="Save to file")
-    parser.add_argument("--version", action="version", version="%(prog)s 2.0")
+    parser.add_argument("--check", type=str, metavar="PASSWORD",
+                       help="Analyze password strength")
+    parser.add_argument("--preset", type=str, 
+                       choices=['wifi', 'strong', 'pin', 'basic', 'max'],
+                       help="Use preset: wifi, strong, pin, basic, max")
+    parser.add_argument("--version", action="version", version="%(prog)s 2.1")
     
     args = parser.parse_args()
+    
+    # Check mode
+    if args.check:
+        check_password(args.check)
+        return
+    
+    # Apply preset if specified
+    if args.preset:
+        preset_config = apply_preset(args.preset)
+        args.length = preset_config['length']
+        args.symbols = preset_config['symbols']
+        args.numbers = preset_config['numbers']
+        args.exclude_ambiguous = preset_config['exclude_ambiguous']
     
     # No arguments = interactive mode
     if len(sys.argv) == 1:
