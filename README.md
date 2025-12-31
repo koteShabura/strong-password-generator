@@ -2,6 +2,10 @@
 
 Cross-platform password generator using Python's `secrets` module for cryptographically secure random generation.
 
+## Demo
+
+![Demo](demo.gif)
+
 ## Requirements
 
 - Python 3.6+
