@@ -59,9 +59,9 @@ def calculate_strength(length, charset_size):
     import math
     entropy = length * math.log2(charset_size)
     if entropy < 50:
-        return "WEAK ⚠️"
+        return "WEAK ✗"
     elif entropy < 75:
-        return "MEDIUM 🔶"
+        return "MEDIUM ◆"
     else:
         return "STRONG ✓"
 
@@ -92,9 +92,9 @@ def check_password(password):
     
     # Determine strength
     if entropy < 50:
-        strength = "WEAK ⚠️"
+        strength = "WEAK ✗"
     elif entropy < 75:
-        strength = "MEDIUM 🔶"
+        strength = "MEDIUM ◆"
     else:
         strength = "STRONG ✓"
     
@@ -185,9 +185,9 @@ def save_to_file(passwords, filename="passwords.txt"):
 
 def interactive_mode():
     """Run interactive mode"""
-    print("╔═══════════════════════════════════════╗")
-    print("║   STRONG PASSWORD GENERATOR v2.1      ║")
-    print("╚═══════════════════════════════════════╝")
+    print("╔══════════════════════════════════════╗")
+    print("║     STRONG PASSWORD GENERATOR v3     ║")
+    print("╚══════════════════════════════════════╝")
     
     use_symbols = get_yes_no("Include symbols?", default=True)
     use_numbers = get_yes_no("Include numbers?", default=True)

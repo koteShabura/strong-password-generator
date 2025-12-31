@@ -1,78 +1,107 @@
-# Strong Password Generator
+# Installation Guide
 
-A simple, secure password generator for Linux terminal. Creates cryptographically strong passwords using Python's secrets module.
+Cross-platform password generator using Python's `secrets` module for cryptographically secure random generation.
 
-## Installation
+## Requirements
+
+- Python 3.6+
+- pip (optional, for clipboard support)
+
+## Quick Start
+
+### Windows
+
+```cmd
+git clone https://github.com/yourusername/strong-password-generator.git
+cd strong-password-generator
+install.bat
+```
+
+### Linux/macOS
 
 ```bash
 git clone https://github.com/yourusername/strong-password-generator.git
 cd strong-password-generator
-chmod +x install.sh
-./install.sh
+chmod +x install.sh && ./install.sh
 source ~/.bashrc
 ```
 
 ## Usage
 
 ### Interactive Mode
-
 ```bash
 passgen
 ```
 
-### CLI Mode
+### CLI Examples
 
 ```bash
-# Basic password with symbols and numbers
+# Generate 16-char password with symbols and numbers
 passgen -l 16 -s -n
 
-# Generate 5 passwords
+# Generate multiple passwords
 passgen -l 20 -s -n -c 5
 
+# Use presets
+passgen --preset wifi      # 16-char, no ambiguous
+passgen --preset strong    # 24-char, max security
+passgen --preset pin       # 6-digit numeric
+
+# Analyze password strength
+passgen --check "YourPassword123"
+
 # Save to file
-passgen -l 16 -s -n --save passwords.txt
-
-# Exclude ambiguous characters (il1Lo0O)
-passgen -l 20 -s -n -x
-
-# Check password strength
-passgen --check "MyPassword123!"
-
-# Use presets for common scenarios
-passgen --preset wifi
-passgen --preset strong
-passgen --preset pin
+passgen -l 16 -s -n --save output.txt
 ```
 
-### Presets
+## Options
 
-Quick shortcuts for common password types:
+| Flag                      | Description            | Default |
+|---------------------------|------------------------|---------|
+| `-l, --length`            | Password length        | 16      |
+| `-c, --count`             | Number to generate     | 1       |
+| `-s, --symbols`           | Include symbols        | false   |
+| `-n, --numbers`           | Include numbers        | false   |
+| `-x, --exclude-ambiguous` | Exclude il1Lo0O        | false   |
+| `--save FILE`             | Save to file           | -       |
+| `--check PASSWORD`        | Analyze strength       | -       |
+| `--preset TYPE`           | Use preset config      | -       |
 
+## Presets
+
+| Preset   | Length | Chars                              | Use Case                |
+|----------|--------|------------------------------------|-------------------------|
+| `wifi`   | 16     | Alphanumeric+symbols, no ambiguous | Easy to type on devices |
+| `strong` | 24     | All characters                     | Maximum security        |
+| `pin`    | 6      | Numeric only                       | PIN codes               |
+| `basic`  | 12     | Alphanumeric, no ambiguous         | Basic passwords         |
+| `max`    | 32     | All characters                     | Ultra-secure            |
+
+## Security Features
+
+- CSPRNG via Python's `secrets` module
+- Entropy calculation for strength rating
+- Character diversity enforcement
+- No password storage (ephemeral by default)
+
+## Troubleshooting
+
+**Command not found after install:**
 ```bash
-passgen --preset wifi      # 16 chars, no ambiguous (easy to type on phone)
-passgen --preset strong    # 24 chars, maximum security
-passgen --preset pin       # 6 digit PIN
-passgen --preset basic     # 12 chars, letters + numbers
-passgen --preset max       # 32 chars, ultra secure
+# Linux/macOS
+source ~/.bashrc
+
+# Windows
+# Reopen Command Prompt
 ```
 
-### Options
-
-```
--l, --length          Password length (default: 16)
--c, --count          Number of passwords (default: 1)
--s, --symbols        Include symbols
--n, --numbers        Include numbers
--x, --exclude-ambiguous   Exclude il1Lo0O
---save FILE          Save to file
---check PASSWORD     Analyze password strength
---preset TYPE        Use preset (wifi, strong, pin, basic, max)
---help               Show help
-```
+**Python not in PATH (Windows):**
+- Reinstall Python with "Add to PATH" option checked
+- Or use: `py passgen.py` directly
 
 ## License
 
-MIT License
+MIT
 
 ## Author
 
